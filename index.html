@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Hehkun kesäpäivät</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body{margin:0;background:#0f1220;color:#f5f5f7;font-family:system-ui,sans-serif;
+         display:flex;align-items:center;justify-content:center;height:100vh;}
+    .card{max-width:620px;background:rgba(255,255,255,0.08);border-radius:16px;padding:20px;
+          box-shadow:0 8px 20px rgba(0,0,0,0.4);}
+    .question{font-size:22px;font-weight:700;margin-bottom:12px;}
+    .options{display:flex;flex-direction:column;gap:10px;}
+    .btn{padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);
+         background:rgba(255,255,255,0.05);color:#fff;text-align:left;cursor:pointer;}
+    .btn:hover{background:rgba(255,255,255,0.15);}
+    .pill{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.2);
+          margin:4px;font-weight:600;}
+    .note{margin-top:12px;font-size:14px;color:#ccc;}
+    .footer{margin-top:16px;display:flex;justify-content:space-between;}
+    .primary{background:linear-gradient(90deg,#ffb347,#ffcc33);color:#000;font-weight:700;
+             border:none;padding:10px 16px;border-radius:12px;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="stage"></div>
+    <div class="footer">
+      <button id="backBtn" disabled>◀ Takaisin</button>
+      <button id="resetBtn" class="primary">Uudestaan!</button>
+    </div>
+  </div>
+
+<script>
+const DESTINATIONS = ["Mustasaari","Juupajoki","Helsinki","Hevossaari","Kivisaari","Viro","Saaremaa","Koskenkorva","Seili","Suomenlinna","Seurasaari","Hinnerjoki","Keuruu"];
+
+const ALL_QUESTIONS = [
+  {q:"Mitä pakkaat reppuun ennen lähtöä?", o:["Aurinkorasva ja lonkero","Sadeviitta ja viinapullo","Pelikortit ja sixpack"]},
+  {q:"Mikä maisema houkuttelee juuri nyt?", o:["Saariston kallio ja kylmä olut","Kaupungin keskusta ja yökerho","Metsälampi ja viinipullo"]},
+  {q:"Millä kulkupelillä lähdette?", o:["Veneellä – joku osaa ohjata kai?","Junalla, eväät tärkeimmät","Polkupyörällä suoraan baariin"]},
+  {q:"Mikä biisi soi matkalla?", o:["Darude – Sandstorm (klassikko)","Bomfunk MC’s – Freestyler","JVG – Ikuinen vappu"]},
+  {q:"Mitä syöt kun nälkä iskee?", o:["Hodari torin kulmalta","Grillimakkara ja sinappi","Fine dining – kun pomo maksaa"]},
+  {q:"Mikä fiilis on päällimmäinen?", o:["Täysillä bailut","Rento terassihengaus","Yllätyksellinen seikkailu"]},
+  {q:"Kuka maksaa ekan kierroksen?", o:["Se joka hävisi vedon","Pomo (kerrankin!)","Kaikki juoksee pakoon ja maksat itse"]},
+  {q:"Mitä asiakas huutaa vielä mielessäsi?", o:["Onko tää hana auki?","Mä tunnen omistajan!","Voitko laittaa halvemmaksi?"]}
+];
+
+let step = 0; let answers=[]; let QUESTIONS=[];
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+
+function startGame(){
+  QUESTIONS = shuffle(ALL_QUESTIONS).slice(0,6);
+  step=0; answers=[];
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const st=document.getElementById('stage');
+  if(step>=QUESTIONS.length){renderResult();return;}
+  const q=QUESTIONS[step];
+  st.innerHTML=`<div class='question'>${q.q}</div><div class='options'>${q.o.map((opt,i)=>`<button class='btn' data-i='${i}'>${opt}</button>`).join('')}</div>`;
+  st.querySelectorAll('.btn').forEach((btn,i)=>btn.onclick=()=>{answers[step]=q.o[i];step++;renderQuestion();});
+  document.getElementById('backBtn').disabled=(step===0);
+}
+
+function renderResult(){
+  const st=document.getElementById('stage');
+  const picks=shuffle([...DESTINATIONS]).slice(0,3);
+  st.innerHTML=`<div class='question'>Valintojesi perusteella saatamme suunnata kohteeseen...</div><div>${picks.map(p=>`<span class='pill'>${p}</span>`).join('')}</div><div class='note'>Matka on tärkeämpi kuin määränpää – mutta juomat tekee reissusta legendan 🍻</div>`;
+}
+
+document.getElementById('backBtn').onclick=()=>{if(step>0){step--;renderQuestion();}};
+document.getElementById('resetBtn').onclick=()=>startGame();
+
+startGame();
+</script>
+</body>
+</html>
